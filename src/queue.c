@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "queue.h"
 
 int empty(struct queue_t * q) 
@@ -44,7 +45,7 @@ struct pcb_t * dequeue(struct queue_t * q)
 	else
 	{
 		memmove(q->proc, q->proc + sizeof(proc_out), (q->size - 1) * sizeof(proc_out));
-		q->proc[size] = NULL;
+		q->proc[q->size] = NULL;
 		q->size--;
 		return proc_out;
 	}
