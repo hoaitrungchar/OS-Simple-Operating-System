@@ -1,3 +1,6 @@
+
+output nay ko vao ifdef ma vao phan else
+-------------------------
 Time slot   0
 There are no process in ready queue: Success
 Time slot   1
@@ -170,4 +173,5 @@ Time slot  78
 	CPU 0: Processed  7 has finished
 There are no process in ready queue: Success
 	CPU 0 stopped
+
 
