@@ -44,7 +44,7 @@ struct pcb_t * dequeue(struct queue_t * q)
 	}
 	else
 	{
-		memmove(q->proc, q->proc + sizeof(proc_out), (q->size - 1) * sizeof(proc_out));
+		memmove(&(q->proc[0]), &(q->proc[1]), (q->size - 1) * sizeof(proc_out));
 		q->proc[q->size] = NULL;
 		q->size--;
 		return proc_out;
