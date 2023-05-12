@@ -11,11 +11,11 @@ static pthread_mutex_t queue_lock;
 
 #ifndef MLQ_SCHED
 #define MLQ_SCHED
+#endif
 #define MAX_PRIO 140
 static struct queue_t mlq_ready_queue[MAX_PRIO];
 static int cnt_prio=0;
 static int cnt_slot=0;
-#endif
 
 int queue_empty(void) {
 #ifdef MLQ_SCHED
@@ -129,6 +129,5 @@ void add_proc(struct pcb_t * proc) {
 }
 
 #endif
-
 
 
