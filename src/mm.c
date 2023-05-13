@@ -57,7 +57,10 @@ int pte_set_swap(uint32_t *pte, int swptyp, int swpoff)
   #ifdef TDBG
           printf("pte_set_swap\n");
   #endif
-  SETBIT(*pte, PAGING_PTE_PRESENT_MASK);
+  /*------------------Bat dau phan lam----------------*/
+  //SETBIT(*pte, PAGING_PTE_PRESENT_MASK); code thay sai ?
+  CLRBIT(*pte, PAGING_PTE_PRESENT_MASK);
+  /*-----------------_Ket thuc phan lam---------------*/
   SETBIT(*pte, PAGING_PTE_SWAPPED_MASK);
 
   SETVAL(*pte, swptyp, PAGING_PTE_SWPTYP_MASK, PAGING_PTE_SWPTYP_LOBIT);
