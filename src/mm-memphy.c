@@ -179,17 +179,20 @@ int MEMPHY_get_freefp(struct memphy_struct *mp, int *retfpn)
 
 int MEMPHY_dump(struct memphy_struct * mp)
 {
+  pthread_mutex_lock(&MEM_in_use);
   #ifdef TDBG
         printf("MEMPHY_dump\n");
   #endif
     /*TODO dump memphy contnt mp->storage 
      *     for tracing the memory content
      */
-    printf("DUMP MEMPHY CONTENT\n");
+    printf("DUMP MEMPHY\n");
+    printf("Content of storage (only print nonzero value)\n");
     for (int i = 0; i < mp->maxsz; i++) {
         if (mp->storage[i] != 0)
-            printf("%08x: %d\n", i ,mp->storage[i]);
+            printf("Address %08x: %d\n", i ,mp->storage[i]);
     }
+    pthread_mutex_unlock(&MEM_in_use);
     return 0;
 }
 
