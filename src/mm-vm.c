@@ -276,10 +276,12 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
     //int vicfpn;
     
 
-    int tgtfpn = PAGING_SWP(pte);//the target frame storing our variable
+    //int tgtfpn = PAGING_SWP(pte);//the target frame storing our variable
 
     /* TODO: Play with your paging theory here */
     /* ------------------Bat dau phan lam----------------------- */
+    int tgtfpn =GETVAL(pte,GENMASK(10,0),5);
+
     int vicfpn, swpfpn; uint32_t* vicpte;
     /* Find pointer to pte of victim frame*/
     vicpte=FIFO_find_vt_page_for_swap(caller->mm, &vicfpn);
@@ -421,13 +423,13 @@ int __read(struct pcb_t *caller, int vmaid, int rgid, int offset, BYTE *data)
 
   /*------------------Bat dau phan lam----------------*/
   if(currg->rg_start>=currg->rg_end){
-    printf("Error: Region not found (freed or unintialized)\n");
+    printf("Process %d read error: Region not found (freed or unintialized)\n",caller->pid);
   }
   else if(currg->rg_start+offset<currg->rg_end){
     pg_getval(caller->mm, currg->rg_start + offset, data, caller);
   }
   else{
-    printf("Error: Invalid offset when read!\n");
+    printf("Process %d read error: Invalid offset when read!\n",caller->pid);
     return -1;
   }
   /*------------------Ket thuc phan lam---------------*/
@@ -483,13 +485,13 @@ int __write(struct pcb_t *caller, int vmaid, int rgid, int offset, BYTE value)
 	  return -1;
     /*------------------Bat dau phan lam----------------*/
   if(currg->rg_start>=currg->rg_end){
-    printf("Error: Region not found (freed or unintialized)\n");
+    printf("Process %d write error: Region not found (freed or unintialized)\n", caller->pid);
   }
-  else if(currg->rg_start+offset<currg->rg_end){
+  else if(currg->rg_start+offset<currg->rg_end||offset<0){
     pg_setval(caller->mm, currg->rg_start + offset, value, caller);
   }
   else{
-    printf("Error: Invalid offset when write!\n");
+    printf("Process %d write error: Invalid offset when write!\n", caller->pid);
     return -1;
   }
   /*------------------Ket thuc phan lam---------------*/

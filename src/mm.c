@@ -203,6 +203,7 @@ int alloc_pages_range(struct pcb_t *caller, int req_pgnum, struct framephy_struc
       if(MEMPHY_get_freefp(caller->active_mswp, &swpfpn)<0)
       {
         //Truong hop khong du frame trong SWAP
+        printf("Error -3000: Out of frame in SWAP/n");
         return -3000;
       }
 
@@ -310,6 +311,10 @@ int __swap_cp_page(struct memphy_struct *mpsrc, int srcfpn,
     BYTE data;
     MEMPHY_read(mpsrc, addrsrc, &data);
     MEMPHY_write(mpdst, addrdst, data);
+
+    /*------------------Bat dau phan lam----------------*/
+    MEMPHY_write(mpsrc,addrsrc,0);
+    /*------------------Ket thuc phan lam---------------*/
   }
 
   return 0;
