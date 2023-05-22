@@ -311,6 +311,10 @@ int __swap_cp_page(struct memphy_struct *mpsrc, int srcfpn,
     BYTE data;
     MEMPHY_read(mpsrc, addrsrc, &data);
     MEMPHY_write(mpdst, addrdst, data);
+
+    /*------------------Bat dau phan lam----------------*/
+    MEMPHY_write(mpsrc,addrsrc,0);
+    /*------------------Ket thuc phan lam---------------*/
   }
 
   return 0;
