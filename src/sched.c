@@ -57,10 +57,7 @@ struct pcb_t * get_mlq_proc(void) {
 	if (cnt_slot>MAX_PRIO-cnt_prio||empty(&mlq_ready_queue[cnt_prio])){
 		//find next non-empty queue
 		if (queue_empty()==1){
-			if(proc!=NULL){
-				cnt_prio=proc->prio;
-			}
-				pthread_mutex_unlock(&queue_lock);
+			pthread_mutex_unlock(&queue_lock);
 			return proc;
 		}
 		do{
