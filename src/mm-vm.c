@@ -487,9 +487,9 @@ int pgread(
   destination = (uint32_t) data;
 #ifdef IODUMP
 if(val!=0)
-  printf("Process %d read region=%d offset=%d value=%d\n", caller->pid,source, offset, data);
+  printf("Process %d read region=%d offset=%d value=%d\n", proc->pid,source, offset, data);
 else
-  printf("Process %d error when read region=%d offset=%d \n", caller->pid,source, offset);
+  printf("Process %d error when read region=%d offset=%d \n", proc->pid,source, offset);
 #ifdef PAGETBL_DUMP
   print_pgtbl(proc, 0, -1); //print max TBL
 #endif
@@ -524,7 +524,7 @@ int __write(struct pcb_t *caller, int vmaid, int rgid, int offset, BYTE value)
 	  
     /*------------------Bat dau phan lam----------------*/
   if(currg->rg_start>=currg->rg_end){
-    printf("Process %d write error: Region not found (freed or unintialized)\n", caller->pid);
+    printf("Process %d write error: Region not found (freed or unintialized)\n", proc->pid);
   }
   else if(currg->rg_start+offset>=currg->rg_end||offset<0){
     printf("Process %d write error: Invalid offset when write!\n", caller->pid);
