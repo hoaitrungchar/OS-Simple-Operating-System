@@ -135,6 +135,8 @@ int vmap_page_range(struct pcb_t *caller, // process call
     //Gan bit present cua pte =1
     PAGING_PTE_SET_PRESENT(pte_temp);
 
+    //Bao rang frame da co chu
+    fpit_temp->owner=caller;
     //Gan cac bit cua pte gia tri frame number
     SETVAL(pte_temp,fpit_temp->fpn,PAGING_PTE_FPN_MASK,0);
 
