@@ -30,6 +30,9 @@ int MEMPHY_mv_csr(struct memphy_struct *mp, int offset)
    return 0;
 }
 
+void statusofRAM(){
+  
+}
 /*
  *  MEMPHY_seq_read - read MEMPHY device
  *  @mp: memphy struct
@@ -186,12 +189,16 @@ int MEMPHY_dump(struct memphy_struct * mp)
     /*TODO dump memphy contnt mp->storage 
      *     for tracing the memory content
      */
+    printf("\n");
     printf("DUMP MEMPHY\n");
     printf("Content of storage (only print nonzero value)\n");
+
+    printf("\n");
     for (int i = 0; i < mp->maxsz; i++) {
         if (mp->storage[i] != 0)
             printf("Address %08x: %d\n", i ,mp->storage[i]);
     }
+    printf("\n");
     pthread_mutex_unlock(&MEM_in_use);
     return 0;
 }

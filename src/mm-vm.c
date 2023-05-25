@@ -149,7 +149,11 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   #endif
   /*Allocate at the toproof */
   struct vm_rg_struct rgnode;
-
+  if(rgid < 0 || rgid > PAGING_MAX_SYMTBL_SZ)
+  {
+    printf("Process %d alloc error: Invalid region\n",caller->pid);
+    return -1;
+  }  
   if (get_free_vmrg_area(caller, vmaid, size, &rgnode) == 0)
   {
     caller->mm->symrgtbl[rgid].rg_start = rgnode.rg_start;
@@ -200,8 +204,11 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   #endif
   struct vm_rg_struct *rgnode;
 
-  if(rgid < 0 || rgid > PAGING_MAX_SYMTBL_SZ)
+  if(rgid < 0 || rgid > PAGING_MAX_SYMTBL_SZ){
     return -1;
+    printf("Process %d free error: Invalid region\n",caller->pid);
+  }
+    
 
   /* TODO: Manage the collect freed region to freerg_list */
   /* ------------------Bat dau phan lam----------------------- */
@@ -280,43 +287,63 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
 
     /* TODO: Play with your paging theory here */
     /* ------------------Bat dau phan lam----------------------- */
-    int tgtfpn =GETVAL(pte,GENMASK(10,0),5);
+    int fpn_temp=-1;
+    if(MEMPHY_get_freefp(caller->mram, &fpn_temp)==0){
+      //Tao node moi
+      struct framephy_struct *newnode=malloc(sizeof(struct framephy_struct));
+      newnode->fpn=fpn_temp;
+      newnode->owner=caller->mm;
 
-    int vicfpn, swpfpn; uint32_t* vicpte;
-    /* Find pointer to pte of victim frame*/
-    vicpte=FIFO_find_vt_page_for_swap(caller->mm, &vicfpn);
-    
-    /* Variable for value of pte*/
-    uint32_t vicpte_temp=*vicpte;
-    /*Get victim frame*/
-    vicfpn=GETVAL(vicpte_temp,PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT); //8191 in decimal is 0->12 bit =1 in binary (total 13bit)
-    /* Get free frame in MEMSWP */
-    if(MEMPHY_get_freefp(caller->active_mswp, &swpfpn)<0)
-    {
-      printf("Out of SWAP");
-      return -3000;
+      //lay gia tri tgtfpn
+      int tgtfpn =GETVAL(pte,GENMASK(10,0),5);
+
+      //Copy frame from SWAP to RAM
+      __swap_cp_page(caller->active_mswp, tgtfpn,caller->mram,fpn_temp);
+      //Cap nhat gia tri pte
+      pte_set_fpn(&pte,fpn_temp);
+      
+      //Them page moi vao FIFO
+      FIFO_add_page(&pte);
     }
+    else{
+      int tgtfpn =GETVAL(pte,GENMASK(10,0),5);
 
-    /* Copy victim frame to swap */
-    __swap_cp_page(caller->mram, vicfpn,caller->active_mswp, swpfpn);
+      int vicfpn, swpfpn; uint32_t* vicpte;
+      /* Find pointer to pte of victim frame*/
+      vicpte=FIFO_find_vt_page_for_swap(caller->mm, &vicfpn);
+      
+      /* Variable for value of pte*/
+      uint32_t vicpte_temp=*vicpte;
+      /*Get victim frame*/
+      vicfpn=GETVAL(vicpte_temp,PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT); //8191 in decimal is 0->12 bit =1 in binary (total 13bit)
+      /* Get free frame in MEMSWP */
+      if(MEMPHY_get_freefp(caller->active_mswp, &swpfpn)<0)
+      {
+        printf("Out of SWAP");
+        return -3000;
+      }
 
-    /* Copy target frame from swap to mem */
-    __swap_cp_page(caller->active_mswp, tgtfpn,caller->mram,vicfpn);
+      /* Copy victim frame to swap */
+      __swap_cp_page(caller->mram, vicfpn,caller->active_mswp, swpfpn);
 
-    //Cap nhat cho pte tro den page vua bi thay rang du lieu do da chuyen vao SWAP
-    pte_set_swap(&vicpte_temp,0,swpfpn);
+      /* Copy target frame from swap to mem */
+      __swap_cp_page(caller->active_mswp, tgtfpn,caller->mram,vicfpn);
 
-    //Cap nhat lai gia tri cua pte vua bi SWAP qua con tro
-    *vicpte=vicpte_temp;
+      //Cap nhat cho pte tro den page vua bi thay rang du lieu do da chuyen vao SWAP
+      pte_set_swap(&vicpte_temp,0,swpfpn);
 
-    //Cap nhat gia tri frame number moi (trong Ram) cho page entry (bao rang pte da co frame number moi)
-    pte_set_fpn(&pte,vicfpn);
+      //Cap nhat lai gia tri cua pte vua bi SWAP qua con tro
+      *vicpte=vicpte_temp;
 
-    //Them page moi vao FIFO
-    FIFO_add_page(&pte);
+      //Cap nhat gia tri frame number moi (trong Ram) cho page entry (bao rang pte da co frame number moi)
+      pte_set_fpn(&pte,vicfpn);
 
-    //Put frame trong trong swap vao free frame list
-    MEMPHY_put_freefp(caller->active_mswp,tgtfpn);
+      //Them page moi vao FIFO
+      FIFO_add_page(&pte);
+
+      //Put frame trong trong swap vao free frame list
+      MEMPHY_put_freefp(caller->active_mswp,tgtfpn);
+    }
 
     /*--------------------Ket thuc phan lam----------------------*/
 
@@ -419,18 +446,23 @@ int __read(struct pcb_t *caller, int vmaid, int rgid, int offset, BYTE *data)
   struct vm_area_struct *cur_vma = get_vma_by_num(caller->mm, vmaid);
 
   if(currg == NULL || cur_vma == NULL) /* Invalid memory identify */
-	  return -1;
+  {
+    printf("Process %d read error: Invalid region\n",caller->pid);
+    return -1;
+  }
+	
 
   /*------------------Bat dau phan lam----------------*/
   if(currg->rg_start>=currg->rg_end){
     printf("Process %d read error: Region not found (freed or unintialized)\n",caller->pid);
+    return -1;
   }
-  else if(currg->rg_start+offset<currg->rg_end){
-    pg_getval(caller->mm, currg->rg_start + offset, data, caller);
-  }
-  else{
+  else if(currg->rg_start+offset>=currg->rg_end||offset<0){
     printf("Process %d read error: Invalid offset when read!\n",caller->pid);
     return -1;
+  }
+  else{
+    pg_getval(caller->mm, currg->rg_start + offset, data, caller);
   }
   /*------------------Ket thuc phan lam---------------*/
 
@@ -439,7 +471,7 @@ int __read(struct pcb_t *caller, int vmaid, int rgid, int offset, BYTE *data)
 }
 
 
-/*pgwrite - PAGING-based read a region memory */
+/*pgread - PAGING-based read a region memory */
 int pgread(
 		struct pcb_t * proc, // Process executing the instruction
 		uint32_t source, // Index of source register
@@ -454,7 +486,10 @@ int pgread(
 
   destination = (uint32_t) data;
 #ifdef IODUMP
-  printf("read region=%d offset=%d value=%d\n", source, offset, data);
+if(val!=0)
+  printf("Process %d read region=%d offset=%d value=%d\n", caller->pid,source, offset, data);
+else
+  printf("Process %d error when read region=%d offset=%d \n", caller->pid,source, offset);
 #ifdef PAGETBL_DUMP
   print_pgtbl(proc, 0, -1); //print max TBL
 #endif
@@ -482,20 +517,23 @@ int __write(struct pcb_t *caller, int vmaid, int rgid, int offset, BYTE value)
   struct vm_area_struct *cur_vma = get_vma_by_num(caller->mm, vmaid);
   
   if(currg == NULL || cur_vma == NULL) /* Invalid memory identify */
-	  return -1;
+  {
+    printf("Process %d write error: Invalid region\n",caller->pid);
+    return -1;
+  }
+	  
     /*------------------Bat dau phan lam----------------*/
   if(currg->rg_start>=currg->rg_end){
     printf("Process %d write error: Region not found (freed or unintialized)\n", caller->pid);
   }
-  else if(currg->rg_start+offset<currg->rg_end||offset<0){
-    pg_setval(caller->mm, currg->rg_start + offset, value, caller);
-  }
-  else{
+  else if(currg->rg_start+offset>=currg->rg_end||offset<0){
     printf("Process %d write error: Invalid offset when write!\n", caller->pid);
     return -1;
   }
+  else{
+    pg_setval(caller->mm, currg->rg_start + offset, value, caller);
+  }
   /*------------------Ket thuc phan lam---------------*/
-
 
   return 0;
 }
@@ -511,7 +549,7 @@ int pgwrite(
         printf("pgwrite\n");
   #endif
 #ifdef IODUMP
-  printf("write region=%d offset=%d value=%d\n", destination, offset, data);
+  printf("Process %d write region=%d offset=%d value=%d\n",caller->pid ,destination, offset, data);
 #ifdef PAGETBL_DUMP
   print_pgtbl(proc, 0, -1); //print max TBL
 #endif
