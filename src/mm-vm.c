@@ -486,7 +486,7 @@ int pgread(
 
   destination = (uint32_t) data;
 #ifdef IODUMP
-if(val!=0)
+if(val==0)
   printf("Process %d read region=%d offset=%d value=%d\n", proc->pid,source, offset, data);
 else
   printf("Process %d error when read region=%d offset=%d \n", proc->pid,source, offset);
