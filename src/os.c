@@ -14,6 +14,8 @@ static int time_slot;
 static int num_cpus;
 static int done = 0;
 
+static int cnt_proc_done = 0; //Bien nay dung de set dieu kien dung cho CPU khi da hoan tat tat ca process
+
 #ifdef MM_PAGING
 static int memramsz;
 static int memswpsz[PAGING_MAX_MMSWP];
@@ -55,6 +57,15 @@ static void * cpu_routine(void * args) {
 		 	* ready queue */
 			proc = get_proc();
 			if (proc == NULL) {
+			
+			//Them dieu kien dung de CPU khong cho process toi vo cuc :>
+			   if (cnt_proc_done == num_processes)
+		   	{
+		   		printf("\tCPU %d stopped\n", id);
+				break;
+		   	}
+		   	//Het phan them
+		   	
                            next_slot(timer_id);
                            continue; /* First load failed. skip dummy load */
                         }
@@ -76,6 +87,7 @@ static void * cpu_routine(void * args) {
 		/* Recheck process status after loading new process */
 		if (proc == NULL && done) {
 			/* No process to run, exit */
+			cnt_proc_done++;
 			printf("\tCPU %d stopped\n", id);
 			break;
 		}else if (proc == NULL) {
