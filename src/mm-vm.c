@@ -160,6 +160,18 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
     caller->mm->symrgtbl[rgid].rg_end = rgnode.rg_end;
 
     *alloc_addr = rgnode.rg_start;
+    
+    #ifdef RAM_STATUS_DUMP
+  	printf("-------------------------\n");
+  	printf("ALLOC CALL | SIZE = %d\n", size);
+  	printf("-------------------------\n");
+  	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
+  	{
+  		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
+  			continue;
+  		printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
+  	}
+   #endif
 
     return 0;
   }
@@ -186,6 +198,18 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   caller->mm->symrgtbl[rgid].rg_end = old_sbrk + size;
 
   *alloc_addr = old_sbrk;
+  
+  #ifdef RAM_STATUS_DUMP
+  	printf("-------------------------\n");
+  	printf("ALLOC CALL | SIZE = %d\n", size);
+  	printf("-------------------------\n");
+  	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
+  	{
+  		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
+  			continue;
+  		printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
+  	}
+  #endif
 
   return 0;
 }
@@ -215,6 +239,18 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
 
   rgnode= get_symrg_byid(caller->mm, rgid);
   struct vm_rg_struct* rgnode_temp=malloc(sizeof(struct vm_rg_struct));
+  
+  #ifdef RAM_STATUS_DUMP
+  	printf("-------------------------\n");
+  	printf("FREE CALL | Region id %d : [%lu,%lu]\n", rgid, rgnode->rg_start, rgnode->rg_end);
+  	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
+  	{
+  		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
+  			continue;
+  		else
+  			printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
+  	}
+  #endif
 
   //Create new node for region
   rgnode_temp->rg_start=rgnode->rg_start;

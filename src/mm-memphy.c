@@ -175,6 +175,12 @@ int MEMPHY_get_freefp(struct memphy_struct *mp, int *retfpn)
    /* MEMPHY is iteratively used up until its exhausted
     * No garbage collector acting then it not been released
     */
+    
+  #ifdef RAM_STATUS_DUMP
+	printf("-------------------------\n");
+	printf("fp[%d] used\n", fp->fpn);
+  #endif
+  
    free(fp);
 
    return 0;
