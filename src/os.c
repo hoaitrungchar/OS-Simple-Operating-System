@@ -76,6 +76,7 @@ static void * cpu_routine(void * args) {
 			free(proc);
 			proc = get_proc();
 			time_left = 0;
+			cnt_proc_done++;
 		}else if (time_left == 0) {
 			/* The process has done its job in current time slot */
 			printf("\tCPU %d: Put process %2d to run queue\n",
@@ -87,7 +88,6 @@ static void * cpu_routine(void * args) {
 		/* Recheck process status after loading new process */
 		if (proc == NULL && done) {
 			/* No process to run, exit */
-			cnt_proc_done++;
 			printf("\tCPU %d stopped\n", id);
 			break;
 		}else if (proc == NULL) {
