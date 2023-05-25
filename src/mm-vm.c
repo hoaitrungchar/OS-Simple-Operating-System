@@ -487,9 +487,9 @@ int pgread(
   destination = (uint32_t) data;
 #ifdef IODUMP
 if(val!=0)
-  printf("Process %d read region=%d offset=%d value=%d\n", caller->pid,source, offset, data);
+  printf("Process %d read region=%d offset=%d value=%d\n", proc->pid,source, offset, data);
 else
-  printf("Process %d error when read region=%d offset=%d \n", caller->pid,source, offset);
+  printf("Process %d error when read region=%d offset=%d \n", proc->pid,source, offset);
 #ifdef PAGETBL_DUMP
   print_pgtbl(proc, 0, -1); //print max TBL
 #endif
@@ -549,7 +549,7 @@ int pgwrite(
         printf("pgwrite\n");
   #endif
 #ifdef IODUMP
-  printf("Process %d write region=%d offset=%d value=%d\n",caller->pid ,destination, offset, data);
+  printf("Process %d write region=%d offset=%d value=%d\n",proc->pid ,destination, offset, data);
 #ifdef PAGETBL_DUMP
   print_pgtbl(proc, 0, -1); //print max TBL
 #endif
