@@ -524,7 +524,7 @@ int __write(struct pcb_t *caller, int vmaid, int rgid, int offset, BYTE value)
 	  
     /*------------------Bat dau phan lam----------------*/
   if(currg->rg_start>=currg->rg_end){
-    printf("Process %d write error: Region not found (freed or unintialized)\n", proc->pid);
+    printf("Process %d write error: Region not found (freed or unintialized)\n", caller->pid);
   }
   else if(currg->rg_start+offset>=currg->rg_end||offset<0){
     printf("Process %d write error: Invalid offset when write!\n", caller->pid);
@@ -549,7 +549,7 @@ int pgwrite(
         printf("pgwrite\n");
   #endif
 #ifdef IODUMP
-  printf("Process %d write region=%d offset=%d value=%d\n",caller->pid ,destination, offset, data);
+  printf("Process %d write region=%d offset=%d value=%d\n",proc->pid ,destination, offset, data);
 #ifdef PAGETBL_DUMP
   print_pgtbl(proc, 0, -1); //print max TBL
 #endif
