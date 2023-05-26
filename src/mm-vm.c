@@ -164,12 +164,17 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   #ifdef RAM_STATUS_DUMP
   	printf("------------------------------------------\n");
   	printf("Process %d ALLOC CALL | SIZE = %d\n",caller->pid ,size);
+    
    #endif
   /*Allocate at the toproof */
   struct vm_rg_struct rgnode;
   if(rgid < 0 || rgid > PAGING_MAX_SYMTBL_SZ)
   {
     printf("Process %d alloc error: Invalid region\n",caller->pid);
+    return -1;
+  }
+  else if(caller->mm->symrgtbl[rgid].rg_start>caller->mm->symrgtbl[rgid].rg_end){
+    printf("Process %d alloc error: Region was alloc before\n",caller->pid);
     return -1;
   }  
   if (get_free_vmrg_area(caller, vmaid, size, &rgnode) == 0)
@@ -178,7 +183,19 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
     caller->mm->symrgtbl[rgid].rg_end = rgnode.rg_end;
 
     *alloc_addr = rgnode.rg_start;
-    
+  #ifdef RAM_STATUS_DUMP
+    printf("------------------------------------------\n");
+    printf("Process %d ALLOC CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode->rg_start, rgnode->rg_end);
+  	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
+  	{
+  		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
+  			continue;
+  		else
+  			printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
+  	}
+    RAM_dump(caller->mram);
+    FIFO_printf_list();
+  #endif
 
 
     return 0;
@@ -203,20 +220,33 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   caller->mm->symrgtbl[rgid].rg_end = old_sbrk + size;
 
   *alloc_addr = old_sbrk;
-  
+  //Add free rg to region list
+  struct vm_rg_struct* rgnode_temp=malloc(sizeof(struct vm_rg_struct));
+  rgnode_temp->rg_start=old_sbrk + size;
+  rgnode_temp->rg_end=cur_vma->sbrk;
+  enlist_vm_freerg_list(caller->mm,rgnode_temp);
   #ifdef RAM_STATUS_DUMP
-  	printf("------------------------------------------\n");
-  	printf("Process %d ALLOC CALL | SIZE = %d\n",caller->pid ,size);
+    printf("------------------------------------------\n");
+    printf("Process %d ALLOC CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode->rg_start, rgnode->rg_end);
   	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
   	{
   		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
   			continue;
-  		printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
+  		else
+  			printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
+  	}
+
+    printf("------------------------------------------\n");
+    printf("Process %d Free  Region list \n ",caller->pid);
+    struct vm_rg_struct* temp=caller->mm->mmap->vm_freerg_list;
+    while (temp!=NULL)
+  	{
+  			printf("Start = %lu, end = %lu\n", temp->rg_start,temp->rg_next); 
+        temp=temp->rg_next;
   	}
     RAM_dump(caller->mram);
     FIFO_printf_list();
   #endif
-
   return 0;
 }
 
@@ -233,7 +263,7 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
         printf("__free\n");
   #endif
   struct vm_rg_struct *rgnode;
-
+  
   if(rgid < 0 || rgid > PAGING_MAX_SYMTBL_SZ){
     return -1;
     printf("Process %d free error: Invalid region\n",caller->pid);
@@ -258,7 +288,10 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   	}
   
   #endif
-
+  //Clear content of region in RAM
+  for(int i=rgnode->rg_start;i<rgnode->rg_end;i++)
+    pg_setval(caller->mm,i,0,caller);
+  //(caller->mram,rgnode->rg_start,rgnode->rg_end)
   //Create new node for region
   rgnode_temp->rg_start=rgnode->rg_start;
   rgnode_temp->rg_end=rgnode->rg_end;
@@ -387,9 +420,6 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
 
       //Put frame trong trong swap vao free frame list
       MEMPHY_put_freefp(caller->active_mswp,tgtfpn);
-      #ifdef RAM_STATUS_DUMP
-		 printf("[Get page]\tPID #%d:\tTarget:%d\tPTE:%08x\n", caller->pid, vicfpn, mm->pgd[pgn]);
-      #endif
     }
 
     /*--------------------Ket thuc phan lam----------------------*/
@@ -800,7 +830,7 @@ int get_free_vmrg_area(struct pcb_t *caller, int vmaid, int size, struct vm_rg_s
           rgit->rg_next = NULL;
         }
       }
-      //break;
+      break;
     }
     else
     {
