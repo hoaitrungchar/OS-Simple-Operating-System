@@ -198,9 +198,6 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
    * inc_vma_limit(caller, vmaid, inc_sz)
    */
   inc_vma_limit(caller, vmaid, inc_sz);
-  /* ------------------Bat dau phan lam----------------------- */
-  cur_vma->sbrk = old_sbrk + size;
-  /* ------------------Ket thuc phan lam---------------------- */
   /*Successful increase limit */
   caller->mm->symrgtbl[rgid].rg_start = old_sbrk;
   caller->mm->symrgtbl[rgid].rg_end = old_sbrk + size;
@@ -719,6 +716,7 @@ int inc_vma_limit(struct pcb_t *caller, int vmaid, int inc_sz)
   /* The obtained vm area (only) 
    * now will be alloc real ram region */
   cur_vma->vm_end += inc_sz;
+  cur_vma->sbrk+=inc_sz;
   if (vm_map_ram(caller, area->rg_start, area->rg_end, 
                     old_end, incnumpage , newrg) < 0)
     return -1; /* Map the memory to MEMRAM */
