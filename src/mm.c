@@ -143,7 +143,7 @@ int vmap_page_range(struct pcb_t *caller, // process call
     pte_set_fpn(&(caller->mm->pgd[pgn + pgit]), fpit->fpn);
 
     #ifdef RAM_STATUS_DUMP
-		 printf("[Page mapping]\tPID #%d:\tVictim:%d\tPTE:%08x\n", caller->pid, fpit->fpn, caller->mm->pgd[pgn+pgit]);
+		 printf("[Page mapping]\tPID #%d:\tFrame:%d\tPTE:%08x\tPGN:%d\n", caller->pid, fpit->fpn, caller->mm->pgd[pgn+pgit],pgn+pgit);
       #endif
     
     //them cac frame nay vao global fifo

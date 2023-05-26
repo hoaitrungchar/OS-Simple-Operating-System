@@ -161,6 +161,10 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   #ifdef TDBG
         printf("__alloc\n");
   #endif
+  #ifdef RAM_STATUS_DUMP
+  	printf("------------------------------------------\n");
+  	printf("Process %d ALLOC CALL | SIZE = %d\n",caller->pid ,size);
+   #endif
   /*Allocate at the toproof */
   struct vm_rg_struct rgnode;
   if(rgid < 0 || rgid > PAGING_MAX_SYMTBL_SZ)
@@ -175,16 +179,7 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
 
     *alloc_addr = rgnode.rg_start;
     
-    #ifdef RAM_STATUS_DUMP
-  	printf("------------------------------------------\n");
-  	printf("Process %d ALLOC CALL | SIZE = %d\n",caller->pid ,size);
-  	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
-  	{
-  		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
-  			continue;
-  		printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
-  	}
-   #endif
+
 
     return 0;
   }
