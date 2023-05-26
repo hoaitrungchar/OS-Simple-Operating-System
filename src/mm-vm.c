@@ -383,10 +383,7 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
       __swap_cp_page(caller->active_mswp, tgtfpn,caller->mram,vicfpn);
 
       //Cap nhat cho pte tro den page vua bi thay rang du lieu do da chuyen vao SWAP
-      pte_set_swap(&vicpte_temp,0,swpfpn);
-
-      //Cap nhat lai gia tri cua pte vua bi SWAP qua con tro
-      *vicpte=vicpte_temp;
+      pte_set_swap(vicpte,0,swpfpn);
 
       //Cap nhat gia tri frame number moi (trong Ram) cho page entry (bao rang pte da co frame number moi)
       pte_set_fpn(&mm->pgd[pgn],vicfpn);
@@ -396,6 +393,9 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
 
       //Put frame trong trong swap vao free frame list
       MEMPHY_put_freefp(caller->active_mswp,tgtfpn);
+      #ifdef RAM_STATUS_DUMP
+		 printf("[Get page]\tPID #%d:\tTarget:%d\tPTE:%08x\n", caller->pid, vicfpn, mm->pgd[pgn]);
+      #endif
     }
 
     /*--------------------Ket thuc phan lam----------------------*/
@@ -422,6 +422,9 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
   //fpn = PAGING_FPN(pte);
   /*------------Het code thay ---------------*/
   /* ------------------Bat dau phan lam----------------------- */
+  #ifdef RAM_STATUS_DUMP
+    FIFO_printf_list();
+  #endif
   *fpn=GETVAL(pte,PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT);
   pthread_mutex_unlock(&MEM_in_use);
   /* ------------------Ket thuc phan lam---------------------- */
