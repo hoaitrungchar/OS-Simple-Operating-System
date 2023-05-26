@@ -320,7 +320,9 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
   #endif
   pthread_mutex_lock(&MEM_in_use);
   uint32_t pte = mm->pgd[pgn];
- 
+    #ifdef RAM_STATUS_DUMP
+		 printf("[Get page]\tPID #%d:\tPGN:%d\tPTE:%08x\n", caller->pid, pgn, pte);
+    #endif
   if (!PAGING_PAGE_PRESENT(pte))
   { /* Page is not online, make it actively living */
     //int vicpgn, swpfpn; 
