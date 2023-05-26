@@ -286,8 +286,8 @@ int main(int argc, char * argv[]) {
 
 	/* Stop timer */
 	stop_timer();
-	pthread_mutex_destroy(&FIFO_lock, NULL);
-	pthread_mutex_destroy(&MEM_in_use, NULL);
+	pthread_mutex_destroy(&FIFO_lock);
+	pthread_mutex_destroy(&MEM_in_use);
 	return 0;
 
 }
