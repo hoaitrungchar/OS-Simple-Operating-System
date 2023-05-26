@@ -151,6 +151,7 @@ int MEMPHY_read(struct memphy_struct * mp, int addr, BYTE *value);
 int MEMPHY_write(struct memphy_struct * mp, int addr, BYTE data);
 int MEMPHY_dump(struct memphy_struct * mp);
 int init_memphy(struct memphy_struct *mp, int max_size, int randomflg);
+int RAM_dump(struct memphy_struct * mram);
 /* DEBUG */
 int print_list_fp(struct framephy_struct *fp);
 int print_list_rg(struct vm_rg_struct *rg);
@@ -166,6 +167,7 @@ static pthread_mutex_t FIFO_lock;
 static pthread_mutex_t MEM_in_use;
 uint32_t* FIFO_find_vt_page_for_swap();
 void FIFO_add_page( uint32_t *pte_add);
+void FIFO_printf_list();
 static struct FIFO_struct*  FIFO_head;
 static struct FIFO_struct*  FIFO_tail;
 /*------------Ket thuc bai lam--------------*/

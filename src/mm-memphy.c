@@ -30,9 +30,6 @@ int MEMPHY_mv_csr(struct memphy_struct *mp, int offset)
    return 0;
 }
 
-void statusofRAM(){
-  
-}
 /*
  *  MEMPHY_seq_read - read MEMPHY device
  *  @mp: memphy struct

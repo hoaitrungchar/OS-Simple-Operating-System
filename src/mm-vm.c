@@ -22,7 +22,7 @@ uint32_t* FIFO_find_vt_page_for_swap(){
         printf("FIFO_find_vt_page_for_swap\n");
     #endif
     pthread_mutex_lock(&FIFO_lock);
-    if(FIFO_head==NULL) return;
+    if(FIFO_head==NULL) return NULL;
     struct FIFO_struct * temp=FIFO_tail;
     uint32_t* pte_ret;
     pte_ret=temp->pte;
@@ -222,7 +222,7 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   		printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
   	}
     RAM_dump(caller->mram);
-    FIFO_pritnf_list();
+    FIFO_printf_list();
   #endif
 
   return 0;
