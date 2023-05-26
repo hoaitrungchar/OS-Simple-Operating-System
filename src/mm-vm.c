@@ -241,7 +241,7 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
     struct vm_rg_struct* temp=caller->mm->mmap->vm_freerg_list;
     while (temp!=NULL)
   	{
-  			printf("Start = %lu, end = %lu\n", temp->rg_start,temp->rg_next); 
+  			printf("Start = %lu, end = %lu\n", temp->rg_start,temp->rg_end); 
         temp=temp->rg_next;
   	}
     RAM_dump(caller->mram);
@@ -289,9 +289,10 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   
   #endif
   //Clear content of region in RAM
-  BYTE t=0;
-  for(int i=rgnode->rg_start;i<rgnode->rg_end;i++)
-    pg_setval(caller->mm,i,t,caller);
+  //BYTE value;
+  //value=0;
+  //for(int i=rgnode->rg_start;i<rgnode->rg_end;i++)
+    //pg_setval(caller->mm,i,value,caller);
   //(caller->mram,rgnode->rg_start,rgnode->rg_end)
   //Create new node for region
   rgnode_temp->rg_start=rgnode->rg_start;
