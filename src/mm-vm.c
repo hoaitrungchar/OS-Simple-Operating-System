@@ -373,7 +373,9 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
         printf("Out of SWAP");
         return -3000;
       }
-
+      #ifdef RAM_STATUS_DUMP
+		 printf("[Page Replacement]\tPID #%d:\tVictim:%d\tPTE:%08x\n", caller->pid, vicfpn, *vicpte);
+      #endif
       /* Copy victim frame to swap */
       __swap_cp_page(caller->mram, vicfpn,caller->active_mswp, swpfpn);
 
@@ -419,7 +421,6 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
   /*------------Code cua thay ---------------*/
   //fpn = PAGING_FPN(pte);
   /*------------Het code thay ---------------*/
-
   /* ------------------Bat dau phan lam----------------------- */
   *fpn=GETVAL(pte,PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT);
   pthread_mutex_unlock(&MEM_in_use);

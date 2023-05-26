@@ -198,7 +198,7 @@ int alloc_pages_range(struct pcb_t *caller, int req_pgnum, struct framephy_struc
       /*Thuc hien swapping de lay du cac frame*/
 
       
-      int vicpgn, swpfpn; 
+      int swpfpn; 
       uint32_t* vicpte;
 
       //Lay free frame trong SWAP
@@ -213,22 +213,21 @@ int alloc_pages_range(struct pcb_t *caller, int req_pgnum, struct framephy_struc
       vicpte=FIFO_find_vt_page_for_swap();
       
       /*Get frame of victim page*/
-      int vicfpn=GETVAL(*vicpte,PAGING_PTE_FPN_MASK,0);
-
+      int vicfpn=GETVAL(*vicpte,PAGING_PTE_FPN_MASK,PAGING_PTE_FPN_LOBIT);
+      #ifdef RAM_STATUS_DUMP
+		 printf("[Page Replacement]\tPID #%d:\tVictim:%d\tPTE:%08x\n", caller->pid, vicfpn, *vicpte);
+      #endif
       /*Swap from RAM to SWAP*/
       __swap_cp_page(caller->mram, vicfpn,caller->active_mswp, swpfpn);
 
       /*Bao cho vicpte rang da swap*/
       pte_set_swap(vicpte,0,swpfpn);
       
-      #ifdef RAM_STATUS_DUMP
-		printf("-------------------------\n");
-		printf("fp[%d] swap\n", swpfpn);
-      #endif
+
 
        /*Tao node moi*/
       struct framephy_struct *newnode=malloc(sizeof(struct framephy_struct));
-      newnode->fpn=fpn;
+      newnode->fpn=vicfpn;
       newnode->owner=caller->mm;
 
       /*Them frame vao frame list (frm_lst) */

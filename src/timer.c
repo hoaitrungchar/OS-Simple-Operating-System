@@ -21,7 +21,7 @@ static int timer_stop = 0;
 static void * timer_routine(void * args) {
 	while (!timer_stop) {
 		#ifdef DEMO
-		printf("\n\n"); 
+		printf("\n"); 
 		#endif
 		printf("Time slot %3lu\n", current_time());
 		int fsh = 0;
