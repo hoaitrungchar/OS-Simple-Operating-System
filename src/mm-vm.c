@@ -64,7 +64,7 @@ void FIFO_printf_list(){
    printf("---------------------- FIFO List  -------------------------\n FPN: ");
    if(temp==NULL) printf("No element \n");
   while(temp!=NULL){
-    printf("[%d]", GETVAL(*pg->pte, PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT));    
+    printf("[%d]", GETVAL(*(temp->pte), PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT));    
     if(temp->FIFO_next!=NULL) printf("->");
     temp=temp->FIFO_next;
     printf("\n--------------------------------------------------------\n");
