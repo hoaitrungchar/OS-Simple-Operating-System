@@ -67,8 +67,8 @@ void FIFO_printf_list(){
     printf("[%d]", GETVAL(*(temp->pte), PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT));    
     if(temp->FIFO_next!=NULL) printf("->");
     temp=temp->FIFO_next;
-    printf("\n--------------------------------------------------------\n");
   }
+  printf("\n--------------------------------------------------------\n");
   pthread_mutex_unlock(&FIFO_lock);
 
 }
