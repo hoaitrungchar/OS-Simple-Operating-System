@@ -108,7 +108,7 @@ int vmap_page_range(struct pcb_t *caller, // process call
 
   ret_rg->rg_end = ret_rg->rg_start = addr; // at least the very first space is usable
 
-  fpit->fp_next = frames;
+  fpit = frames;
 
   /* TODO map range of frame to address space 
   *      [addr to addr + pgnum*PAGING_PAGESZ
@@ -125,17 +125,11 @@ int vmap_page_range(struct pcb_t *caller, // process call
   //Tang gioi han rg_end 
     ret_rg->rg_end=addr + pgnum*PAGING_PAGESZ;
   /* ------------------Bat dau phan lam----------------------- */
-  struct framephy_struct *fpit_temp=fpit;
-  for(;pgit<pgnum;pgit++){
-    //Tro den frame can map
-    fpit_temp=fpit_temp->fp_next;
-  
-    //Map pte vao frame
-    uint32_t pte_temp;
+  //for(;pgit<pgnum;pgit++){
+  while (fpit != NULL && pgit < pgnum) {
     
-
     //Bao rang frame da co chu
-    fpit_temp->owner=caller;
+    fpit->owner=caller;
     
     /*
     //Gan bit present cua pte =1
@@ -155,7 +149,8 @@ int vmap_page_range(struct pcb_t *caller, // process call
     //them cac frame nay vao global fifo
     FIFO_add_page(&(caller->mm->pgd[pgn+pgit]));
 
-    
+    fpit = fpit->fp_next;
+    pgit++;
   }
   /* ------------------Ket thuc phan lam---------------------- */
 
