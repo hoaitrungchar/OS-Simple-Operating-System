@@ -209,6 +209,7 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   			continue;
   		printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
   	}
+    RAM_dump(caller->mram);
   #endif
 
   return 0;
@@ -250,6 +251,7 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   		else
   			printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
   	}
+  
   #endif
 
   //Create new node for region

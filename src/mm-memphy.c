@@ -208,6 +208,20 @@ int MEMPHY_dump(struct memphy_struct * mp)
     pthread_mutex_unlock(&MEM_in_use);
     return 0;
 }
+int RAM_dump(struct memphy_struct * mram) {
+   int freeCnt = 0;
+   struct framephy_struct *fpit = mram->free_fp_list;
+   while (fpit != NULL) {
+      fpit = fpit->fp_next;
+      freeCnt++;
+   }
+   printf("+)----------- RAM mapping status -----------\n");
+   printf("+ Number of mapped frames:\t%d\n", mram->maxsz / PAGING_PAGESZ - freeCnt);
+   printf("+ Number of remaining frames:\t%d\n", freeCnt);
+   printf("+)------------------------------------------\n");
+   return 0;
+}
+
 
 int MEMPHY_put_freefp(struct memphy_struct *mp, int fpn)
 {
