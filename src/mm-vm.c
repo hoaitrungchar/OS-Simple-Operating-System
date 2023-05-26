@@ -185,7 +185,7 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
     *alloc_addr = rgnode.rg_start;
   #ifdef RAM_STATUS_DUMP
     printf("------------------------------------------\n");
-    printf("Process %d ALLOC CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode->rg_start, rgnode->rg_end);
+    printf("Process %d ALLOC CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode.rg_start, rgnode.rg_end);
   	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
   	{
   		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
@@ -224,10 +224,10 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   struct vm_rg_struct* rgnode_temp=malloc(sizeof(struct vm_rg_struct));
   rgnode_temp->rg_start=old_sbrk + size;
   rgnode_temp->rg_end=cur_vma->sbrk;
-  enlist_vm_freerg_list(caller->mm,rgnode_temp);
+  enlist_vm_freerg_list(caller->mm,*rgnode_temp);
   #ifdef RAM_STATUS_DUMP
     printf("------------------------------------------\n");
-    printf("Process %d ALLOC CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode->rg_start, rgnode->rg_end);
+    printf("Process %d ALLOC CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode.rg_start, rgnode.rg_end);
   	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
   	{
   		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
@@ -289,8 +289,9 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   
   #endif
   //Clear content of region in RAM
+  BYTE t=0;
   for(int i=rgnode->rg_start;i<rgnode->rg_end;i++)
-    pg_setval(caller->mm,i,0,caller);
+    pg_setval(caller->mm,i,t,caller);
   //(caller->mram,rgnode->rg_start,rgnode->rg_end)
   //Create new node for region
   rgnode_temp->rg_start=rgnode->rg_start;
