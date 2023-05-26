@@ -351,10 +351,10 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
       //Copy frame from SWAP to RAM
       __swap_cp_page(caller->active_mswp, tgtfpn,caller->mram,fpn_temp);
       //Cap nhat gia tri pte
-      pte_set_fpn(&pte,fpn_temp);
+      pte_set_fpn(&mm->pgd[pgn],fpn_temp);
       
       //Them page moi vao FIFO
-      FIFO_add_page(&pte);
+      FIFO_add_page(&mm->pgd[pgn]);
     }
     else{
       int tgtfpn =GETVAL(pte,GENMASK(10,0),5);
@@ -389,10 +389,10 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
       *vicpte=vicpte_temp;
 
       //Cap nhat gia tri frame number moi (trong Ram) cho page entry (bao rang pte da co frame number moi)
-      pte_set_fpn(&pte,vicfpn);
+      pte_set_fpn(&mm->pgd[pgn],vicfpn);
 
       //Them page moi vao FIFO
-      FIFO_add_page(&pte);
+      FIFO_add_page(&mm->pgd[pgn]);
 
       //Put frame trong trong swap vao free frame list
       MEMPHY_put_freefp(caller->active_mswp,tgtfpn);
