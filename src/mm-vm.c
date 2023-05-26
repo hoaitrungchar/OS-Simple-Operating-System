@@ -350,19 +350,13 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
   #endif
   pthread_mutex_lock(&MEM_in_use);
   uint32_t pte = mm->pgd[pgn];
-    #ifdef RAM_STATUS_DUMP
-		 printf("[Get page]\tPID #%d:\tPGN:%d\tPTE:%08x\n", caller->pid, pgn, pte);
-    #endif
   if (!PAGING_PAGE_PRESENT(pte))
   { /* Page is not online, make it actively living */
     //int vicpgn, swpfpn; 
     //uint32_t vicpte;
     //uint32_t vicpte
     //int vicfpn;
-    
-
     //int tgtfpn = PAGING_SWP(pte);//the target frame storing our variable
-
     /* TODO: Play with your paging theory here */
     /* ------------------Bat dau phan lam----------------------- */
     int fpn_temp=-1;
@@ -400,9 +394,6 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
         printf("Out of SWAP");
         return -3000;
       }
-      #ifdef RAM_STATUS_DUMP
-		 printf("[Page Replacement]\tPID #%d:\tVictim:%d\tPTE:%08x\n", caller->pid, vicfpn, *vicpte);
-      #endif
       /* Copy victim frame to swap */
       __swap_cp_page(caller->mram, vicfpn,caller->active_mswp, swpfpn);
 
@@ -446,9 +437,6 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
   //fpn = PAGING_FPN(pte);
   /*------------Het code thay ---------------*/
   /* ------------------Bat dau phan lam----------------------- */
-  #ifdef RAM_STATUS_DUMP
-    FIFO_printf_list();
-  #endif
   *fpn=GETVAL(pte,PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT);
   pthread_mutex_unlock(&MEM_in_use);
   /* ------------------Ket thuc phan lam---------------------- */
@@ -543,6 +531,7 @@ int __read(struct pcb_t *caller, int vmaid, int rgid, int offset, BYTE *data)
   else{
     pg_getval(caller->mm, currg->rg_start + offset, data, caller);
   }
+
   /*------------------Ket thuc phan lam---------------*/
 
 
@@ -574,7 +563,9 @@ else
 #endif
   MEMPHY_dump(proc->mram);
 #endif
-
+   #ifdef RAM_STATUS_DUMP
+  FIFO_printf_list();
+  #endif
   return val;
 }
 
@@ -638,6 +629,9 @@ int pgwrite(
   MEMPHY_dump(proc->mram);
 #endif
 
+ #ifdef RAM_STATUS_DUMP
+  FIFO_printf_list();
+  #endif
   return x;
 }
 
