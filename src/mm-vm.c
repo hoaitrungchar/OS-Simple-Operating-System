@@ -163,7 +163,7 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
     
     #ifdef RAM_STATUS_DUMP
   	printf("-------------------------\n");
-  	printf("ALLOC CALL | SIZE = %d\n", size);
+  	printf("Process %d ALLOC CALL | SIZE = %d\n",caller->pid ,size);
   	printf("-------------------------\n");
   	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
   	{
@@ -201,7 +201,7 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   
   #ifdef RAM_STATUS_DUMP
   	printf("-------------------------\n");
-  	printf("ALLOC CALL | SIZE = %d\n", size);
+  	printf("Process %d ALLOC CALL | SIZE = %d\n",caller->pid ,size);
   	printf("-------------------------\n");
   	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
   	{
@@ -242,7 +242,7 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   
   #ifdef RAM_STATUS_DUMP
   	printf("-------------------------\n");
-  	printf("FREE CALL | Region id %d : [%lu,%lu]\n", rgid, rgnode->rg_start, rgnode->rg_end);
+  	printf("Process %d FREE CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode->rg_start, rgnode->rg_end);
   	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
   	{
   		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
