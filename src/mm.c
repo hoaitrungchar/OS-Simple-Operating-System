@@ -132,17 +132,22 @@ int vmap_page_range(struct pcb_t *caller, // process call
   
     //Map pte vao frame
     uint32_t pte_temp;
-    //Gan bit present cua pte =1
-    PAGING_PTE_SET_PRESENT(pte_temp);
+    
 
     //Bao rang frame da co chu
     fpit_temp->owner=caller;
+    
+    /*
+    //Gan bit present cua pte =1
+    PAGING_PTE_SET_PRESENT(pte_temp);
     //Gan cac bit cua pte gia tri frame number
     SETVAL(pte_temp,fpit_temp->fpn,PAGING_PTE_FPN_MASK,0);
 
     //Gan pte vao page table cua mm
     caller->mm->pgd[pgn+pgit]=pte_temp; 
-
+    */
+    pte_set_fpn(&caller->mm->pgd[pgn + pgit], fpit->fpn);
+    
     //them cac frame nay vao global fifo
     FIFO_add_page(&(caller->mm->pgd[pgn+pgit]));
 
