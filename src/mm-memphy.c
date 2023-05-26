@@ -215,10 +215,10 @@ int RAM_dump(struct memphy_struct * mram) {
       fpit = fpit->fp_next;
       freeCnt++;
    }
-   printf("+)----------- RAM mapping status -----------\n");
-   printf("+ Number of mapped frames:\t%d\n", mram->maxsz / PAGING_PAGESZ - freeCnt);
-   printf("+ Number of remaining frames:\t%d\n", freeCnt);
-   printf("+)------------------------------------------\n");
+   printf("----------- RAM mapping status -----------\n");
+   printf("Number of mapped frames:\t%d\n", mram->maxsz / PAGING_PAGESZ - freeCnt);
+   printf("Number of remaining frames:\t%d\n", freeCnt);
+   printf("------------------------------------------\n");
    return 0;
 }
 

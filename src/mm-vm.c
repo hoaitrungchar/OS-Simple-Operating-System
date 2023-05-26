@@ -58,6 +58,20 @@ void FIFO_add_page(uint32_t *pte_add){
   }
   pthread_mutex_unlock(&FIFO_lock);
 }
+void FIFO_printf_list(){
+  pthread_mutex_lock(&FIFO_lock);
+  struct FIFO_struct * temp=FIFO_head;
+   printf("---------------------- FIFO List  -------------------------\n FPN: ");
+   if(temp==NULL) printf("No element \n");
+  while(temp!=NULL){
+    printf("[%d]", GETVAL(*pg->pte, PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT));    
+    if(temp->FIFO_next!=NULL) printf("->")
+    temp=temp->FIFO_next;
+    printf("\n--------------------------------------------------------\n");
+  }
+  pthread_mutex_unlock(&FIFO_lock);
+
+}
 
 /*------------------Ket thuc phan lam --------------*/
 
@@ -162,9 +176,8 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
     *alloc_addr = rgnode.rg_start;
     
     #ifdef RAM_STATUS_DUMP
-  	printf("-------------------------\n");
+  	printf("------------------------------------------\n");
   	printf("Process %d ALLOC CALL | SIZE = %d\n",caller->pid ,size);
-  	printf("-------------------------\n");
   	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
   	{
   		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
@@ -200,9 +213,8 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   *alloc_addr = old_sbrk;
   
   #ifdef RAM_STATUS_DUMP
-  	printf("-------------------------\n");
+  	printf("------------------------------------------\n");
   	printf("Process %d ALLOC CALL | SIZE = %d\n",caller->pid ,size);
-  	printf("-------------------------\n");
   	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
   	{
   		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
@@ -210,6 +222,7 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   		printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
   	}
     RAM_dump(caller->mram);
+    FIFO_pritnf_list();
   #endif
 
   return 0;
@@ -242,7 +255,7 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   struct vm_rg_struct* rgnode_temp=malloc(sizeof(struct vm_rg_struct));
   
   #ifdef RAM_STATUS_DUMP
-  	printf("-------------------------\n");
+  	printf("------------------------------------------\n");
   	printf("Process %d FREE CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode->rg_start, rgnode->rg_end);
   	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
   	{
