@@ -388,6 +388,9 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
         printf("Out of SWAP");
         return -3000;
       }
+      #ifdef RAM_STATUS_DUMP
+		 printf("[Page Replacement]\tPID #%d:\tVictim:%d\tPTE:%08x\tTarget:%d\t\n", caller->pid, vicfpn, *vicpte,tgtfpn);
+      #endif
       /* Copy victim frame to swap */
       __swap_cp_page(caller->mram, vicfpn,caller->active_mswp, swpfpn);
 
@@ -400,6 +403,9 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
       //Cap nhat gia tri frame number moi (trong Ram) cho page entry (bao rang pte da co frame number moi)
       pte_set_fpn(&mm->pgd[pgn],vicfpn);
 
+      #ifdef RAM_STATUS_DUMP
+		  printf("[After Swap]\tPID #%d:\tVictim:%d\tPTE:%08x\tTarget:%d\t\n", caller->pid,tgtfpn , *vicpte,vicfpn,);
+      #endif
       //Them page moi vao FIFO
       FIFO_add_page(&mm->pgd[pgn]);
 
