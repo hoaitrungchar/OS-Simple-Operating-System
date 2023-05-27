@@ -73,9 +73,6 @@ struct pcb_t * get_mlq_proc(void) {
 		cnt_slot++;
 	}
 	pthread_mutex_unlock(&queue_lock);
-	if(proc!=NULL){
-		cnt_prio=proc->prio;
-	}
 	return proc;	
 
 }
