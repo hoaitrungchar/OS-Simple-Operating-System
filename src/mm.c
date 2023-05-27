@@ -228,7 +228,9 @@ int alloc_pages_range(struct pcb_t *caller, int req_pgnum, struct framephy_struc
       pte_set_swap(vicpte,0,swpfpn);
       
 
-
+      #ifdef RAM_STATUS_DUMP
+		 printf("[After Swap]\tPID #%d:\tVictim:%d\tPTE:%08x\n", caller->pid, swpfpn, *vicpte);
+      #endif
        /*Tao node moi*/
       struct framephy_struct *newnode=malloc(sizeof(struct framephy_struct));
       newnode->fpn=vicfpn;

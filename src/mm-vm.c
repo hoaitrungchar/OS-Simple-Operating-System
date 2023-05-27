@@ -359,10 +359,6 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
     /* ------------------Bat dau phan lam----------------------- */
     int fpn_temp=-1;
     if(MEMPHY_get_freefp(caller->mram, &fpn_temp)==0){
-      //Tao node moi
-      struct framephy_struct *newnode=malloc(sizeof(struct framephy_struct));
-      newnode->fpn=fpn_temp;
-      newnode->owner=caller->mm;
 
       //lay gia tri tgtfpn
       int tgtfpn =GETVAL(pte,GENMASK(10,0),5);
@@ -433,7 +429,7 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
   //fpn = PAGING_FPN(pte);
   /*------------Het code thay ---------------*/
   /* ------------------Bat dau phan lam----------------------- */
-  *fpn=GETVAL(pte,PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT);
+  *fpn=GETVAL(mm->pgd[pgn],PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT);
   pthread_mutex_unlock(&MEM_in_use);
   /* ------------------Ket thuc phan lam---------------------- */
   return 0;
