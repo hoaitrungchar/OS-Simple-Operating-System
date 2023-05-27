@@ -404,7 +404,7 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
       pte_set_fpn(&mm->pgd[pgn],vicfpn);
 
       #ifdef RAM_STATUS_DUMP
-		  printf("[After Swap]\tPID #%d:\tVictim:%d\tPTE:%08x\tTarget:%d\t\n", caller->pid,tgtfpn , *vicpte,vicfpn,);
+		  printf("[After Swap]\tPID #%d:\tVictim:%d\tPTE:%08x\tTarget:%d\t\n", caller->pid,tgtfpn , *vicpte,vicfpn);
       #endif
       //Them page moi vao FIFO
       FIFO_add_page(&mm->pgd[pgn]);
