@@ -430,8 +430,6 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
     //pte_set_fpn(&pte, tgtfpn);
     //enlist_pgn_node(&caller->mm->fifo_pgn,pgn);
     /*------------Het code thay ---------------*/
-
-
   }
   /*------------Code cua thay ---------------*/
   //fpn = PAGING_FPN(pte);
