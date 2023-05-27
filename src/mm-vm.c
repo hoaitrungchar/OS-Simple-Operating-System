@@ -235,12 +235,13 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   	}
 
     printf("------------------------------------------\n");
-    printf("Process %d Free  Region list \n",caller->pid);
+    printf("Process %d Free Region list \n",caller->pid);
     struct vm_rg_struct* temp=caller->mm->mmap->vm_freerg_list;
     while (temp!=NULL)
   	{
-  			printf("Start = %lu, end = %lu\n", temp->rg_start,temp->rg_end); 
-        temp=temp->rg_next;
+      if(temp->rg_start!=temp->rg_end)
+  		  printf("Start = %lu, end = %lu\n", temp->rg_start,temp->rg_end); 
+      temp=temp->rg_next;
   	}
     RAM_dump(caller->mram);
     FIFO_printf_list();
@@ -273,19 +274,6 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
 
   rgnode= get_symrg_byid(caller->mm, rgid);
   struct vm_rg_struct* rgnode_temp=malloc(sizeof(struct vm_rg_struct));
-  
-  #ifdef RAM_STATUS_DUMP
-  	printf("------------------------------------------\n");
-  	printf("Process %d FREE CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode->rg_start, rgnode->rg_end);
-  	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
-  	{
-  		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
-  			continue;
-  		else
-  			printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
-  	}
-  
-  #endif
   //Clear content of region in RAM
   BYTE value;
   value=0;
@@ -302,7 +290,17 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   
   /*enlist the obsoleted memory region */
   enlist_vm_freerg_list(caller->mm, *rgnode_temp);
- 
+  #ifdef RAM_STATUS_DUMP
+  	printf("------------------------------------------\n");
+  	printf("Process %d FREE CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode->rg_start, rgnode->rg_end);
+  	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
+  	{
+  		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
+  			continue;
+  		else
+  			printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
+  	}
+  #endif 
   return 0;
 }
 
