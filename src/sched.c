@@ -64,7 +64,6 @@ struct pcb_t * get_mlq_proc(void) {
 			cnt_prio=(cnt_prio+1)%MAX_PRIO;
 			if (!empty(&mlq_ready_queue[cnt_prio])){
 				proc=dequeue(&mlq_ready_queue[cnt_prio]);
-				cnt_prio=proc->prio;
 				cnt_slot = 0;
 			}
 		}while (proc==NULL);
