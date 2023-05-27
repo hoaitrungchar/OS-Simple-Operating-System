@@ -273,6 +273,11 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   /* ------------------Bat dau phan lam----------------------- */
 
   rgnode= get_symrg_byid(caller->mm, rgid);
+  if(rgnode->rg_start==rgnode->rg_end)
+  {
+    printf("Error: Region wasn't alloc or was freed before");
+    return -1;
+  }
   struct vm_rg_struct* rgnode_temp=malloc(sizeof(struct vm_rg_struct));
   //Clear content of region in RAM
   BYTE value;
