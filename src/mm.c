@@ -176,6 +176,10 @@ int alloc_pages_range(struct pcb_t *caller, int req_pgnum, struct framephy_struc
   /* ------------------Bat dau phan lam----------------------- */
   struct framephy_struct *newfp_str;
   struct framephy_struct *temp;
+  if((caller->mram->maxsz / PAGING_PAGESZ) <req_pgnum){
+    printf("Process %d alloc error: Alloc size is bigger than RAM's size!\n",caller->pid);
+    return -3000;
+  }
   /*--------------------Ket thuc phan lam----------------------*/
   
   for(pgit = 0; pgit < req_pgnum; pgit++)

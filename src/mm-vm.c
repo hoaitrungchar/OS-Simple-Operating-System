@@ -366,7 +366,7 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
     if(MEMPHY_get_freefp(caller->mram, &fpn_temp)==0){
 
       //lay gia tri tgtfpn
-      int tgtfpn =GETVAL(pte,GENMASK(10,0),5);
+      int tgtfpn =GETVAL(pte,GENMASK(20,0),5);
 
       //Copy frame from SWAP to RAM
       __swap_cp_page(caller->active_mswp, tgtfpn,caller->mram,fpn_temp);
@@ -377,7 +377,7 @@ int pg_getpage(struct mm_struct *mm, int pgn, int *fpn, struct pcb_t *caller)
       FIFO_add_page(&mm->pgd[pgn]);
     }
     else{
-      int tgtfpn =GETVAL(pte,GENMASK(10,0),5);
+      int tgtfpn =GETVAL(pte,GENMASK(20,0),5);
 
       int vicfpn, swpfpn; uint32_t* vicpte;
       /* Find pointer to pte of victim frame*/
