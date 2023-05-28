@@ -54,7 +54,7 @@ struct pcb_t * get_mlq_proc(void) {
 	 * Remember to use lock to protect the queue.
 	 * */
 	pthread_mutex_lock(&queue_lock);
-	if (cnt_slot>MAX_PRIO-cnt_prio||empty(&mlq_ready_queue[cnt_prio])){
+	if (cnt_slot>=MAX_PRIO-cnt_prio||empty(&mlq_ready_queue[cnt_prio])){
 		//find next non-empty queue
 		if (queue_empty()==1){
 			pthread_mutex_unlock(&queue_lock);
@@ -64,7 +64,7 @@ struct pcb_t * get_mlq_proc(void) {
 			cnt_prio=(cnt_prio+1)%MAX_PRIO;
 			if (!empty(&mlq_ready_queue[cnt_prio])){
 				proc=dequeue(&mlq_ready_queue[cnt_prio]);
-				cnt_slot = 0;
+				cnt_slot = 1;
 			}
 		}while (proc==NULL);
 	}
