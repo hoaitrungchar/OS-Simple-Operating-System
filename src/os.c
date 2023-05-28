@@ -15,6 +15,7 @@ static int num_cpus;
 static int done = 0;
 
 static int cnt_proc_done = 0; //Bien nay dung de set dieu kien dung cho CPU khi da hoan tat tat ca process
+pthread_mutex_t cnt_done_lock;
 
 #ifdef MM_PAGING
 static int memramsz;
@@ -76,7 +77,10 @@ static void * cpu_routine(void * args) {
 			free(proc);
 			proc = get_proc();
 			time_left = 0;
+			
+			pthread_mutex_lock(&cnt_done_lock);
 			cnt_proc_done++;
+			pthread_mutex_unlock(&cnt_done_lock);
 		}else if (time_left == 0) {
 			/* The process has done its job in current time slot */
 			printf("\tCPU %d: Put process %2d to run queue\n",
@@ -211,6 +215,7 @@ int main(int argc, char * argv[]) {
 	static struct FIFO_struct* FIFO_tail=NULL;
 	pthread_mutex_init(&FIFO_lock, NULL);
 	pthread_mutex_init(&MEM_in_use, NULL);
+	pthread_mutex_init(&cnt_done_lock, NULL);
 	/*------------Ket thuc bai lam--------------*/
 
 	/* Read config */
@@ -288,6 +293,7 @@ int main(int argc, char * argv[]) {
 	stop_timer();
 	pthread_mutex_destroy(&FIFO_lock);
 	pthread_mutex_destroy(&MEM_in_use);
+	pthread_mutex_destroy(&cnt_done_lock);
 	return 0;
 
 }
