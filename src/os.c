@@ -110,10 +110,8 @@ static void * cpu_routine(void * args) {
 				
 				pthread_mutex_lock(&rps_times_lock);
 				if (rps_times[proc->pid-1]==-1){
-					printf("calc rpstime %d - %d\n",current_time(),ld_processes.start_time[proc->pid-1]);
 					rps_times[proc->pid-1]=current_time()-ld_processes.start_time[proc->pid-1];
 				}
-				printf("%d\n",rps_times[proc->pid-1]);
 				pthread_mutex_unlock(&rps_times_lock);
 				#endif
 			time_left = time_slot;
