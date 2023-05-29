@@ -11,9 +11,10 @@
 #define IODUMP 1
 #define PAGETBL_DUMP 1
 
+/* ------------------Bat dau phan lam----------------------- */
 #define RAM_STATUS_DUMP 1
 
-/* ------------------Bat dau phan lam----------------------- */
+
 //#define TDBG
 /* -----------------Ket thuc phan lam----------------------- */
 

@@ -189,15 +189,15 @@ int MEMPHY_dump(struct memphy_struct * mp)
      *     for tracing the memory content
      */
     printf("\n");
-    printf("DUMP MEMPHY\n");
-    printf("Content of storage (only print nonzero value)\n");
-
-    printf("\n");
+    printf("Print content of RAM (only print nonzero value)\n");
     for (int i = 0; i < mp->maxsz; i++) {
         if (mp->storage[i] != 0)
-            printf("Address %08x: %d\n", i ,mp->storage[i]);
+        {
+          printf("---------------------------------\n");
+          printf("Address 0x%08x: %d\n", i ,mp->storage[i]);
+        }
     }
-    printf("\n");
+    printf("---------------------------------\n");
     pthread_mutex_unlock(&MEM_in_use);
     return 0;
 }

@@ -192,6 +192,8 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   		else
   			printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
   	}
+    struct vm_area_struct *cur_vma = get_vma_by_num(caller->mm, vmaid);
+    printf("VMA id %d : start = %lu, end = %lu, sbrk = %lu\n", cur_vma->vm_id,cur_vma->vm_start,cur_vma->vm_end,cur_vma->sbrk);
     RAM_dump(caller->mram);
     FIFO_printf_list();
   #endif
@@ -243,6 +245,8 @@ int __alloc(struct pcb_t *caller, int vmaid, int rgid, int size, int *alloc_addr
   		  printf("Start = %lu, end = %lu\n", temp->rg_start,temp->rg_end); 
       temp=temp->rg_next;
   	}
+    printf("------------------------------------------\n");
+    printf("VMA id %d : start = %lu, end = %lu, sbrk = %lu\n", cur_vma->vm_id,cur_vma->vm_start,cur_vma->vm_end,cur_vma->sbrk);
     RAM_dump(caller->mram);
     FIFO_printf_list();
   #endif
