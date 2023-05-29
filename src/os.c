@@ -315,9 +315,17 @@ int main(int argc, char * argv[]) {
 	stop_timer();
 #ifdef RPS_TIME
 	pthread_mutex_lock(&rps_times_lock);
-	for(int i=0;i<num_processes;i++){
-		printf("rps time of pid %d is %d\n",i+1,rps_times[i]);
+	int sum = 0;  
+
+	for (int i = 0; i < num_processes; i++) {
+		printf("RPS time of PID %d is %d\n", i + 1, rps_times[i]);
+		sum += rps_times[i];  
 	}
+
+	double average = (double)sum / num_processes;  
+
+	printf("Average RPS time: %.2f\n", average);
+
 	pthread_mutex_unlock(&rps_times_lock);
 #endif
 	pthread_mutex_destroy(&FIFO_lock);
