@@ -61,14 +61,14 @@ void FIFO_add_page(uint32_t *pte_add){
 void FIFO_printf_list(){
   pthread_mutex_lock(&FIFO_lock);
   struct FIFO_struct * temp=FIFO_head;
-   printf("---------------------- FIFO List  -------------------------\n FPN: ");
+   printf("--------------- FIFO List  ---------------\n FPN: ");
    if(temp==NULL) printf("No element \n");
   while(temp!=NULL){
     printf("[%d]", GETVAL(*(temp->pte), PAGING_PTE_FPN_MASK, PAGING_PTE_FPN_LOBIT));    
     if(temp->FIFO_next!=NULL) printf("->");
     temp=temp->FIFO_next;
   }
-  printf("\n--------------------------------------------------------\n");
+  printf("\n----------------------------------------\n");
   pthread_mutex_unlock(&FIFO_lock);
 
 }
@@ -301,7 +301,7 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   enlist_vm_freerg_list(caller->mm, *rgnode_temp);
   #ifdef RAM_STATUS_DUMP
   	printf("------------------------------------------\n");
-  	printf("Process %d FREE CALL | Region id %d : [%lu,%lu]\n",caller->pid, rgid, rgnode->rg_start, rgnode->rg_end);
+  	printf("Process %d FREE CALL | Region id %d after free: [%lu,%lu]\n",caller->pid, rgid, rgnode->rg_start, rgnode->rg_end);
   	for (int it = 0; it < PAGING_MAX_SYMTBL_SZ; it++)
   	{
   		if (caller->mm->symrgtbl[it].rg_start == 0 && caller->mm->symrgtbl[it].rg_end == 0)
@@ -309,6 +309,16 @@ int __free(struct pcb_t *caller, int vmaid, int rgid)
   		else
   			printf("Region id %d : start = %lu, end = %lu\n", it, caller->mm->symrgtbl[it].rg_start, caller->mm->symrgtbl[it].rg_end); 
   	}
+    printf("------------------------------------------\n");
+    printf("Process %d Free Region list \n",caller->pid);
+    struct vm_rg_struct* temp=caller->mm->mmap->vm_freerg_list;
+    while (temp!=NULL)
+  	{
+      if(temp->rg_start!=temp->rg_end)
+  		  printf("Start = %lu, end = %lu\n", temp->rg_start,temp->rg_end); 
+      temp=temp->rg_next;
+  	}
+    printf("------------------------------------------\n");
   #endif 
   return 0;
 }
