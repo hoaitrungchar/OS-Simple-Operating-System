@@ -16,7 +16,11 @@ static int done = 0;
 
 static int cnt_proc_done = 0; //Bien nay dung de set dieu kien dung cho CPU khi da hoan tat tat ca process
 pthread_mutex_t cnt_done_lock;
-
+#define RPS_TIME
+#ifdef RPS_TIME
+static int* rps_times ;
+pthread_mutex_t rps_times_lock;
+#endif
 #ifdef MM_PAGING
 static int memramsz;
 static int memswpsz[PAGING_MAX_MMSWP];
@@ -102,6 +106,16 @@ static void * cpu_routine(void * args) {
 		}else if (time_left == 0) {
 			printf("\tCPU %d: Dispatched process %2d\n",
 				id, proc->pid);
+				#ifdef RPS_TIME
+				
+				pthread_mutex_lock(&rps_times_lock);
+				if (rps_times[proc->pid-1]==-1){
+					printf("calc rpstime %d - %d\n",current_time(),ld_processes.start_time[proc->pid-1]);
+					rps_times[proc->pid-1]=current_time()-ld_processes.start_time[proc->pid-1];
+				}
+				printf("%d\n",rps_times[proc->pid-1]);
+				pthread_mutex_unlock(&rps_times_lock);
+				#endif
 			time_left = time_slot;
 		}
 		
@@ -148,7 +162,9 @@ static void * ld_routine(void * args) {
 		next_slot(timer_id);
 	}
 	free(ld_processes.path);
+	#ifndef RPS_TIME
 	free(ld_processes.start_time);
+	#endif
 	done = 1;
 	detach_event(timer_id);
 	pthread_exit(NULL);
@@ -164,6 +180,12 @@ static void read_config(const char * path) {
 	ld_processes.path = (char**)malloc(sizeof(char*) * num_processes);
 	ld_processes.start_time = (unsigned long*)
 		malloc(sizeof(unsigned long) * num_processes);
+#ifdef RPS_TIME
+	rps_times = (int *)malloc( sizeof(int) * num_processes );
+	for(int i=0;i<num_processes;i++){
+		rps_times[i]=-1;
+	}
+#endif
 #ifdef MM_PAGING
 	int sit;
 #ifdef MM_FIXED_MEMSZ
@@ -291,9 +313,17 @@ int main(int argc, char * argv[]) {
 
 	/* Stop timer */
 	stop_timer();
+#ifdef RPS_TIME
+	pthread_mutex_lock(&rps_times_lock);
+	for(int i=0;i<num_processes;i++){
+		printf("rps time of pid %d is %d\n",i+1,rps_times[i]);
+	}
+	pthread_mutex_unlock(&rps_times_lock);
+#endif
 	pthread_mutex_destroy(&FIFO_lock);
 	pthread_mutex_destroy(&MEM_in_use);
 	pthread_mutex_destroy(&cnt_done_lock);
+	pthread_mutex_destroy(&rps_times_lock);
 	return 0;
 
 }
